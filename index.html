@@ -1,0 +1,1537 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forje seu Personagem — Critical Minis</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #07060A;
+  --bg2:     #100D18;
+  --bg3:     #1A1528;
+  --bg4:     #221C35;
+  --violet:  #9B6DFF;
+  --violet2: #BFA0FF;
+  --ember:   #5A2E8A;
+  --gold:    #C8952A;
+  --gold2:   #E8C060;
+  --white:   #EAE6FF;
+  --muted:   #8A82B5;
+  --dim:     #4A4468;
+  --border:  rgba(155,109,255,.15);
+  --border2: rgba(155,109,255,.32);
+  --r: 8px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+html, body {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--white);
+  font-family: 'EB Garamond', serif;
+  overflow-x: hidden;
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width:5px; }
+::-webkit-scrollbar-track { background: var(--bg2); }
+::-webkit-scrollbar-thumb { background: var(--ember); border-radius:3px; }
+
+/* ── AMBIENT PARTICLES ── */
+#particles {
+  position:fixed; inset:0;
+  pointer-events:none; z-index:0;
+  overflow:hidden;
+}
+.particle {
+  position:absolute;
+  border-radius:50%;
+  animation: float linear infinite;
+  opacity:0;
+}
+@keyframes float {
+  0%   { transform:translateY(100vh) scale(0); opacity:0; }
+  10%  { opacity:.6; }
+  90%  { opacity:.3; }
+  100% { transform:translateY(-20px) scale(1.2); opacity:0; }
+}
+
+/* ── MAIN LAYOUT ── */
+#app {
+  position:relative; z-index:1;
+  max-width:900px;
+  margin:0 auto;
+  padding:0 20px 60px;
+  min-height:100vh;
+}
+
+/* ── HEADER ── */
+header {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  padding:40px 0 24px;
+  gap:12px;
+}
+.logo-wrap { display:flex; align-items:center; gap:14px; }
+.logo-img  { width:52px; height:52px; object-fit:contain; }
+.brand {
+  font-family:'Cinzel', serif;
+  font-size:22px; font-weight:700;
+  letter-spacing:.18em;
+  color:var(--white);
+  line-height:1;
+}
+.brand-sub {
+  font-family:'Inter', sans-serif;
+  font-size:9px; font-weight:600;
+  letter-spacing:.45em;
+  color:var(--violet);
+  text-transform:uppercase;
+  margin-top:3px;
+}
+.header-title {
+  font-family:'Cinzel Decorative', serif;
+  font-size:clamp(20px,4vw,32px);
+  font-weight:900;
+  text-align:center;
+  background:linear-gradient(135deg, var(--gold2), var(--violet2));
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  margin-top:8px;
+}
+.header-sub {
+  font-family:'EB Garamond', serif;
+  font-style:italic;
+  font-size:16px;
+  color:var(--muted);
+  text-align:center;
+}
+
+/* ── PROGRESS BAR ── */
+.progress-container {
+  padding:20px 0 32px;
+}
+.step-labels {
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:10px;
+  gap:4px;
+}
+.step-label {
+  font-family:'Inter', sans-serif;
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:.15em;
+  text-transform:uppercase;
+  color:var(--dim);
+  flex:1;
+  text-align:center;
+  transition:color .3s;
+}
+.step-label.active { color:var(--violet2); }
+.step-label.done   { color:var(--violet); }
+
+.progress-track {
+  height:3px;
+  background:var(--bg3);
+  border-radius:2px;
+  overflow:hidden;
+}
+.progress-fill {
+  height:100%;
+  background:linear-gradient(90deg, var(--ember), var(--violet), var(--gold));
+  border-radius:2px;
+  transition:width .5s cubic-bezier(.4,0,.2,1);
+}
+.step-dots {
+  display:flex;
+  justify-content:space-between;
+  margin-top:8px;
+}
+.step-dot {
+  width:8px; height:8px;
+  border-radius:50%;
+  background:var(--bg4);
+  border:1px solid var(--dim);
+  transition:all .3s;
+}
+.step-dot.active {
+  background:var(--violet);
+  border-color:var(--violet2);
+  box-shadow:0 0 8px var(--violet);
+}
+.step-dot.done {
+  background:var(--ember);
+  border-color:var(--violet);
+}
+
+/* ── SCREEN ── */
+.screen { display:none; animation:fadeSlide .4s ease; }
+.screen.active { display:block; }
+@keyframes fadeSlide {
+  from { opacity:0; transform:translateY(16px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+/* ── SECTION HEADING ── */
+.section-eyebrow {
+  font-family:'Inter', sans-serif;
+  font-size:10px; font-weight:700;
+  letter-spacing:.38em;
+  color:var(--violet);
+  text-transform:uppercase;
+  margin-bottom:8px;
+  display:flex; align-items:center; gap:10px;
+}
+.section-eyebrow::before {
+  content:'';
+  display:block; width:24px; height:1px;
+  background:var(--violet);
+}
+.section-title {
+  font-family:'Cinzel Decorative', serif;
+  font-size:clamp(22px,4vw,34px);
+  font-weight:900;
+  color:var(--white);
+  margin-bottom:8px;
+  line-height:1.1;
+}
+.section-desc {
+  font-family:'EB Garamond', serif;
+  font-style:italic;
+  font-size:16px;
+  color:var(--muted);
+  margin-bottom:28px;
+  max-width:600px;
+  line-height:1.6;
+}
+
+/* ── CHOICE GRID ── */
+.choice-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(200px, 1fr));
+  gap:14px;
+  margin-bottom:32px;
+}
+
+.choice-card {
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  padding:20px 18px;
+  cursor:pointer;
+  transition:all .2s ease;
+  position:relative;
+  overflow:hidden;
+}
+.choice-card::before {
+  content:'';
+  position:absolute;
+  inset:0;
+  background:linear-gradient(135deg, rgba(155,109,255,0), rgba(155,109,255,0.06));
+  opacity:0;
+  transition:opacity .2s;
+}
+.choice-card:hover {
+  border-color:var(--border2);
+  transform:translateY(-3px);
+  box-shadow:0 8px 24px rgba(90,46,138,.3);
+}
+.choice-card:hover::before { opacity:1; }
+.choice-card.selected {
+  border-color:var(--violet);
+  background:linear-gradient(135deg, var(--bg3), var(--bg4));
+  box-shadow:0 0 20px rgba(155,109,255,.25), inset 0 0 20px rgba(155,109,255,.05);
+}
+.choice-card.selected::after {
+  content:'✦';
+  position:absolute;
+  top:10px; right:12px;
+  color:var(--gold2);
+  font-size:14px;
+}
+
+.choice-icon {
+  font-size:32px;
+  margin-bottom:10px;
+  display:block;
+  line-height:1;
+}
+.choice-name {
+  font-family:'Cinzel', serif;
+  font-size:15px;
+  font-weight:700;
+  color:var(--white);
+  margin-bottom:5px;
+  letter-spacing:.04em;
+}
+.choice-tagline {
+  font-family:'Inter', sans-serif;
+  font-size:10px;
+  font-weight:600;
+  letter-spacing:.15em;
+  color:var(--violet);
+  text-transform:uppercase;
+  margin-bottom:8px;
+}
+.choice-desc {
+  font-family:'EB Garamond', serif;
+  font-style:italic;
+  font-size:13.5px;
+  color:var(--muted);
+  line-height:1.5;
+}
+
+/* ── DETAIL PANEL ── */
+.detail-panel {
+  background:linear-gradient(135deg, var(--bg2), var(--bg3));
+  border:1px solid var(--border2);
+  border-radius:var(--r);
+  padding:24px;
+  margin-bottom:28px;
+  display:none;
+  animation:fadeSlide .3s ease;
+}
+.detail-panel.show { display:block; }
+.detail-title {
+  font-family:'Cinzel', serif;
+  font-size:20px;
+  font-weight:700;
+  color:var(--white);
+  margin-bottom:4px;
+}
+.detail-subtitle {
+  font-family:'Inter', sans-serif;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.25em;
+  color:var(--violet);
+  text-transform:uppercase;
+  margin-bottom:16px;
+}
+.detail-body {
+  font-family:'EB Garamond', serif;
+  font-size:16px;
+  color:var(--muted);
+  line-height:1.7;
+  margin-bottom:16px;
+}
+.detail-traits {
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:14px;
+}
+.trait-pill {
+  background:rgba(155,109,255,.1);
+  border:1px solid rgba(155,109,255,.2);
+  border-radius:4px;
+  padding:5px 12px;
+  font-family:'Inter', sans-serif;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.1em;
+  color:var(--violet2);
+  text-transform:uppercase;
+}
+.trait-pill.gold {
+  background:rgba(200,149,42,.1);
+  border-color:rgba(200,149,42,.25);
+  color:var(--gold2);
+}
+
+/* ── ATTRIBUTE BARS ── */
+.attr-grid {
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+  margin-top:14px;
+}
+.attr-row { }
+.attr-label {
+  font-family:'Inter', sans-serif;
+  font-size:10px; font-weight:600;
+  letter-spacing:.12em;
+  color:var(--muted);
+  text-transform:uppercase;
+  margin-bottom:5px;
+  display:flex; justify-content:space-between;
+}
+.attr-label span { color:var(--violet2); }
+.attr-bar {
+  height:5px;
+  background:var(--bg4);
+  border-radius:3px;
+  overflow:hidden;
+}
+.attr-fill {
+  height:100%;
+  border-radius:3px;
+  background:linear-gradient(90deg, var(--ember), var(--violet));
+  transition:width .6s cubic-bezier(.4,0,.2,1);
+}
+
+/* ── ALIGNMENT GRID ── */
+.alignment-grid {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin-bottom:28px;
+}
+.alignment-card {
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  padding:14px 12px;
+  cursor:pointer;
+  text-align:center;
+  transition:all .2s;
+}
+.alignment-card:hover {
+  border-color:var(--border2);
+  transform:translateY(-2px);
+}
+.alignment-card.selected {
+  border-color:var(--gold);
+  background:linear-gradient(135deg, var(--bg3), var(--bg4));
+  box-shadow:0 0 16px rgba(200,149,42,.2);
+}
+.alignment-name {
+  font-family:'Cinzel', serif;
+  font-size:13px;
+  font-weight:700;
+  color:var(--white);
+  margin-bottom:4px;
+}
+.alignment-desc {
+  font-family:'EB Garamond', serif;
+  font-style:italic;
+  font-size:12px;
+  color:var(--muted);
+  line-height:1.4;
+}
+
+/* ── NAME INPUT ── */
+.name-input-wrap {
+  position:relative;
+  margin-bottom:28px;
+}
+.name-input {
+  width:100%;
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  padding:18px 24px;
+  font-family:'Cinzel', serif;
+  font-size:22px;
+  font-weight:700;
+  color:var(--white);
+  letter-spacing:.06em;
+  outline:none;
+  transition:border-color .2s, box-shadow .2s;
+}
+.name-input:focus {
+  border-color:var(--violet);
+  box-shadow:0 0 0 3px rgba(155,109,255,.15);
+}
+.name-input::placeholder { color:var(--dim); font-weight:400; font-size:18px; }
+.name-label {
+  position:absolute;
+  top:-10px; left:16px;
+  background:var(--bg);
+  padding:0 6px;
+  font-family:'Inter', sans-serif;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.2em;
+  color:var(--violet);
+  text-transform:uppercase;
+}
+
+/* ── BACKGROUND CHOICE ── */
+.bg-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+  gap:12px;
+  margin-bottom:28px;
+}
+.bg-card {
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  padding:16px;
+  cursor:pointer;
+  transition:all .2s;
+}
+.bg-card:hover  { border-color:var(--border2); transform:translateY(-2px); }
+.bg-card.selected {
+  border-color:var(--gold);
+  background:linear-gradient(135deg, var(--bg3), var(--bg4));
+  box-shadow:0 0 14px rgba(200,149,42,.18);
+}
+.bg-card.selected::after { content:'✦'; float:right; color:var(--gold2); font-size:12px; }
+.bg-name {
+  font-family:'Cinzel', serif;
+  font-size:14px; font-weight:700;
+  color:var(--white);
+  margin-bottom:5px;
+}
+.bg-bonus {
+  font-family:'Inter', sans-serif;
+  font-size:10px; font-weight:600;
+  letter-spacing:.1em;
+  color:var(--violet);
+  text-transform:uppercase;
+}
+
+/* ── NAV BUTTONS ── */
+.nav-buttons {
+  display:flex;
+  gap:12px;
+  justify-content:flex-end;
+  margin-top:8px;
+}
+.btn {
+  font-family:'Inter', sans-serif;
+  font-size:11px; font-weight:700;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  padding:14px 28px;
+  cursor:pointer;
+  border:none;
+  outline:none;
+  transition:all .18s;
+  clip-path:polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%);
+}
+.btn-primary {
+  background:linear-gradient(135deg, var(--ember), var(--violet));
+  color:#fff;
+  border:1px solid var(--violet);
+}
+.btn-primary:hover {
+  background:linear-gradient(135deg, #7B4FC9, var(--violet2));
+  box-shadow:0 0 18px rgba(155,109,255,.6);
+}
+.btn-secondary {
+  background:transparent;
+  border:1px solid rgba(155,109,255,.3);
+  color:var(--muted);
+}
+.btn-secondary:hover {
+  border-color:var(--violet);
+  color:var(--white);
+}
+
+/* ── SUMMARY / SHEET ── */
+.sheet {
+  background:linear-gradient(160deg, var(--bg2), var(--bg3));
+  border:1px solid var(--border2);
+  border-radius:12px;
+  padding:32px;
+  margin-bottom:32px;
+}
+.sheet-header {
+  text-align:center;
+  margin-bottom:28px;
+  padding-bottom:20px;
+  border-bottom:1px solid var(--border);
+}
+.char-name {
+  font-family:'Cinzel Decorative', serif;
+  font-size:clamp(24px,4vw,40px);
+  font-weight:900;
+  background:linear-gradient(135deg, var(--gold2), var(--violet2));
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  margin-bottom:6px;
+}
+.char-identity {
+  font-family:'Cinzel', serif;
+  font-size:16px;
+  color:var(--muted);
+  letter-spacing:.08em;
+}
+.sheet-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+  gap:16px;
+  margin-bottom:24px;
+}
+.sheet-block {
+  background:var(--bg);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  padding:16px;
+}
+.sheet-block-label {
+  font-family:'Inter', sans-serif;
+  font-size:9px; font-weight:700;
+  letter-spacing:.3em;
+  color:var(--violet);
+  text-transform:uppercase;
+  margin-bottom:6px;
+}
+.sheet-block-value {
+  font-family:'Cinzel', serif;
+  font-size:18px; font-weight:700;
+  color:var(--white);
+}
+.sheet-block-sub {
+  font-family:'EB Garamond', serif;
+  font-style:italic;
+  font-size:12px;
+  color:var(--muted);
+  margin-top:3px;
+}
+.sheet-traits-section {
+  margin-top:20px;
+  padding-top:20px;
+  border-top:1px solid var(--border);
+}
+.sheet-traits-title {
+  font-family:'Cinzel', serif;
+  font-size:14px; font-weight:700;
+  color:var(--gold2);
+  letter-spacing:.1em;
+  margin-bottom:12px;
+}
+.traits-list {
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+
+/* ── ORDER CTA ── */
+.order-cta {
+  background:linear-gradient(135deg, rgba(90,46,138,.4), rgba(155,109,255,.15));
+  border:1px solid var(--violet);
+  border-radius:12px;
+  padding:28px 32px;
+  text-align:center;
+  margin-bottom:24px;
+}
+.order-cta-title {
+  font-family:'Cinzel Decorative', serif;
+  font-size:20px; font-weight:900;
+  color:var(--white);
+  margin-bottom:8px;
+}
+.order-cta-desc {
+  font-family:'EB Garamond', serif;
+  font-style:italic;
+  font-size:16px;
+  color:var(--muted);
+  margin-bottom:20px;
+  line-height:1.6;
+}
+.order-price {
+  font-family:'Cinzel', serif;
+  font-size:32px; font-weight:700;
+  color:var(--white);
+  margin-bottom:16px;
+}
+.order-price span {
+  font-size:14px;
+  color:var(--muted);
+  font-family:'Inter', sans-serif;
+  font-weight:400;
+  letter-spacing:.05em;
+}
+.btn-order {
+  font-family:'Inter', sans-serif;
+  font-size:13px; font-weight:700;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  padding:18px 40px;
+  background:linear-gradient(135deg, var(--ember), var(--violet));
+  color:#fff;
+  border:none;
+  cursor:pointer;
+  clip-path:polygon(14px 0%,100% 0%,calc(100% - 14px) 100%,0% 100%);
+  transition:all .18s;
+  display:inline-block;
+}
+.btn-order:hover {
+  background:linear-gradient(135deg, #7B4FC9, var(--violet2));
+  box-shadow:0 0 24px rgba(155,109,255,.7);
+}
+.btn-restart {
+  background:transparent;
+  border:1px solid var(--border2);
+  color:var(--muted);
+  font-family:'Inter', sans-serif;
+  font-size:11px; font-weight:700;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  padding:12px 24px;
+  cursor:pointer;
+  clip-path:polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%);
+  transition:all .18s;
+  display:inline-block;
+  margin-top:12px;
+}
+.btn-restart:hover { border-color:var(--violet); color:var(--white); }
+
+/* ── TOAST NOTIFICATION ── */
+.toast {
+  position:fixed;
+  bottom:30px; left:50%;
+  transform:translateX(-50%) translateY(20px);
+  background:linear-gradient(135deg, var(--ember), var(--violet));
+  color:#fff;
+  padding:12px 24px;
+  border-radius:40px;
+  font-family:'Inter', sans-serif;
+  font-size:13px; font-weight:600;
+  letter-spacing:.06em;
+  opacity:0;
+  transition:all .3s;
+  z-index:1000;
+  pointer-events:none;
+}
+.toast.show {
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
+}
+
+/* ── DIVIDER ORNAMENT ── */
+.ornament-divider {
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin:24px 0;
+  color:var(--dim);
+  font-size:12px;
+}
+.ornament-divider::before,
+.ornament-divider::after {
+  content:'';
+  flex:1;
+  height:1px;
+  background:var(--border);
+}
+
+/* ── MOBILE ── */
+@media (max-width:600px) {
+  .choice-grid { grid-template-columns:1fr 1fr; }
+  .alignment-grid { grid-template-columns:1fr 1fr 1fr; }
+  .attr-grid { grid-template-columns:1fr; }
+  .sheet-grid { grid-template-columns:1fr 1fr; }
+  .nav-buttons { flex-direction:column; }
+  .btn { width:100%; text-align:center; }
+}
+</style>
+</head>
+<body>
+
+<!-- PARTICLES -->
+<div id="particles"></div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<div id="app">
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo-wrap">
+      <img class="logo-img" id="logoImg" alt="Critical Minis">
+      <div>
+        <div class="brand">CRITICAL MINIS</div>
+        <div class="brand-sub">Forje suas lendas</div>
+      </div>
+    </div>
+    <div class="header-title">Construtor de Personagem</div>
+    <div class="header-sub">Cada escolha molda uma lenda. A sua começa aqui.</div>
+  </header>
+
+  <!-- PROGRESS -->
+  <div class="progress-container">
+    <div class="step-labels">
+      <div class="step-label active" data-step="0">Raça</div>
+      <div class="step-label" data-step="1">Classe</div>
+      <div class="step-label" data-step="2">Histórico</div>
+      <div class="step-label" data-step="3">Alinhamento</div>
+      <div class="step-label" data-step="4">Nome</div>
+      <div class="step-label" data-step="5">Resumo</div>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill" style="width:0%"></div>
+    </div>
+    <div class="step-dots">
+      <div class="step-dot active" data-step="0"></div>
+      <div class="step-dot" data-step="1"></div>
+      <div class="step-dot" data-step="2"></div>
+      <div class="step-dot" data-step="3"></div>
+      <div class="step-dot" data-step="4"></div>
+      <div class="step-dot" data-step="5"></div>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 0: RAÇA ═══ -->
+  <div class="screen active" id="screen-0">
+    <div class="section-eyebrow">Passo 1 de 5</div>
+    <div class="section-title">Escolha sua Raça</div>
+    <div class="section-desc">A raça define sua origem, aparência e habilidades inatas. Cada raça carrega séculos de história no sangue.</div>
+
+    <div class="choice-grid" id="race-grid"></div>
+
+    <div class="detail-panel" id="race-detail">
+      <div class="detail-title" id="rd-name"></div>
+      <div class="detail-subtitle" id="rd-subtitle"></div>
+      <div class="detail-body" id="rd-body"></div>
+      <div class="attr-grid" id="rd-attrs"></div>
+      <div class="detail-traits" id="rd-traits"></div>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="btn btn-primary" onclick="nextStep()" id="btn-race-next" disabled>Confirmar Raça →</button>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 1: CLASSE ═══ -->
+  <div class="screen" id="screen-1">
+    <div class="section-eyebrow">Passo 2 de 5</div>
+    <div class="section-title">Escolha sua Classe</div>
+    <div class="section-desc">A classe é o seu caminho. Define como você luta, conjura e sobrevive. Qual será o seu legado?</div>
+
+    <div class="choice-grid" id="class-grid"></div>
+
+    <div class="detail-panel" id="class-detail">
+      <div class="detail-title" id="cd-name"></div>
+      <div class="detail-subtitle" id="cd-subtitle"></div>
+      <div class="detail-body" id="cd-body"></div>
+      <div class="attr-grid" id="cd-attrs"></div>
+      <div class="detail-traits" id="cd-traits"></div>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="btn btn-secondary" onclick="prevStep()">← Voltar</button>
+      <button class="btn btn-primary" onclick="nextStep()" id="btn-class-next" disabled>Confirmar Classe →</button>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 2: HISTÓRICO ═══ -->
+  <div class="screen" id="screen-2">
+    <div class="section-eyebrow">Passo 3 de 5</div>
+    <div class="section-title">Seu Histórico</div>
+    <div class="section-desc">O histórico conta de onde você veio antes de se tornar um aventureiro. Ele concede perícias, ferramentas e uma história.</div>
+
+    <div class="bg-grid" id="bg-grid"></div>
+
+    <div class="detail-panel" id="bg-detail" style="display:none">
+      <div class="detail-title" id="bgd-name"></div>
+      <div class="detail-subtitle" id="bgd-subtitle"></div>
+      <div class="detail-body" id="bgd-body"></div>
+      <div class="detail-traits" id="bgd-traits"></div>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="btn btn-secondary" onclick="prevStep()">← Voltar</button>
+      <button class="btn btn-primary" onclick="nextStep()" id="btn-bg-next" disabled>Confirmar Histórico →</button>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 3: ALINHAMENTO ═══ -->
+  <div class="screen" id="screen-3">
+    <div class="section-eyebrow">Passo 4 de 5</div>
+    <div class="section-title">Alinhamento Moral</div>
+    <div class="section-desc">O alinhamento descreve a ética e moral do personagem — o que ele acredita e como age no mundo.</div>
+
+    <div class="alignment-grid" id="alignment-grid"></div>
+
+    <div class="nav-buttons">
+      <button class="btn btn-secondary" onclick="prevStep()">← Voltar</button>
+      <button class="btn btn-primary" onclick="nextStep()" id="btn-align-next" disabled>Confirmar Alinhamento →</button>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 4: NOME ═══ -->
+  <div class="screen" id="screen-4">
+    <div class="section-eyebrow">Passo 5 de 5</div>
+    <div class="section-title">Dê um Nome ao seu Herói</div>
+    <div class="section-desc">Um nome é mais que palavras — é o que será lembrado em tavernas, temido por inimigos e gravado em lendas.</div>
+
+    <div class="name-input-wrap">
+      <div class="name-label">Nome do Personagem</div>
+      <input class="name-input" id="charName" type="text" placeholder="Qual é o seu nome, aventureiro?" maxlength="40" oninput="onNameInput()">
+    </div>
+
+    <div class="ornament-divider">sugestões para sua raça</div>
+    <div class="detail-traits" id="name-suggestions" style="margin-bottom:28px;flex-wrap:wrap;display:flex;gap:8px;"></div>
+
+    <div class="nav-buttons">
+      <button class="btn btn-secondary" onclick="prevStep()">← Voltar</button>
+      <button class="btn btn-primary" onclick="nextStep()" id="btn-name-next" disabled>Finalizar Personagem →</button>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 5: RESUMO ═══ -->
+  <div class="screen" id="screen-5">
+    <div class="section-eyebrow">Personagem Criado</div>
+    <div class="section-title">Sua Lenda Começa</div>
+    <div class="section-desc">Aqui está o resumo do seu personagem. Cada detalhe foi forjado com suas escolhas.</div>
+
+    <div class="sheet" id="char-sheet">
+      <div class="sheet-header">
+        <div class="char-name" id="sheet-name"></div>
+        <div class="char-identity" id="sheet-identity"></div>
+      </div>
+      <div class="sheet-grid" id="sheet-blocks"></div>
+      <div class="sheet-traits-section">
+        <div class="sheet-traits-title">✦ Traços Raciais</div>
+        <div class="traits-list" id="sheet-race-traits"></div>
+      </div>
+      <div class="sheet-traits-section" style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+        <div class="sheet-traits-title" style="color:var(--violet2)">⚔ Habilidades de Classe</div>
+        <div class="traits-list" id="sheet-class-traits"></div>
+      </div>
+    </div>
+
+    <div class="order-cta">
+      <div class="order-cta-title">Traga seu personagem à vida</div>
+      <div class="order-cta-desc">Impressão 3D em resina de alta precisão. Cada detalhe que você escolheu, materializado em 32mm pela Anycubic Photon Mono.</div>
+      <div class="order-price">R$60 <span>miniatura completa com base</span></div>
+      <button class="btn-order" onclick="window.open('https://criticalminis.com.br/products/raca-pro','_blank')">Encomendar Miniatura →</button>
+      <br>
+      <button class="btn-restart" onclick="restart()">↺ Criar outro personagem</button>
+    </div>
+  </div>
+
+</div><!-- end #app -->
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════════════
+
+const RACES = [
+  {
+    id:'humano', name:'Humano', icon:'🧑', tagline:'Versátil e Ambicioso',
+    desc:'Adaptável e determinado, o humano prospera em qualquer ambiente. Sem dons naturais especiais, compensa com inteligência e ambição que nenhuma outra raça possui.',
+    lore:'Os humanos são a raça mais jovem e ao mesmo tempo a mais numerosa de Faerûn. Constroem reinos, forjam alianças e escrevem histórias em questão de décadas — um piscar de olhos para um elfo.',
+    attrs:[{name:'Força',v:60},{name:'Destreza',v:60},{name:'Constituição',v:60},{name:'Inteligência',v:60},{name:'Sabedoria',v:60},{name:'Carisma',v:60}],
+    bonus:'+1 em todos os atributos',
+    traits:['Atributos +1 todos','Proficiência extra','Talento bônus (variante)'],
+    names:['Aldric','Brennan','Cedric','Dorian','Erevan','Faolan','Gavin','Helena','Isolde','Kira'],
+  },
+  {
+    id:'elfo', name:'Elfo', icon:'🧝', tagline:'Gracioso e Eterno',
+    desc:'De vida longa e sentidos aguçados, os elfos carregam séculos de sabedoria. Ligados à magia desde o nascimento, percebem o mundo com uma sensibilidade única.',
+    lore:'Os elfos passaram milênios estudando magia e arte. Não precisam dormir — entram em um estado meditativo chamado Transe — e raramente esquecem nada.',
+    attrs:[{name:'Destreza',v:85},{name:'Inteligência',v:80},{name:'Percepção',v:95},{name:'Força',v:40},{name:'Constituição',v:50},{name:'Carisma',v:70}],
+    bonus:'DES +2',
+    traits:['Transe (sem dormir)','Vantagem em Percepção','Imunidade a encanto','Visão no Escuro','Sentidos Aguçados'],
+    names:['Aelindra','Caladrel','Enialis','Filverel','Galaeron','Immeral','Jelenneth','Keyleth','Laucian','Mirthal'],
+  },
+  {
+    id:'anao', name:'Anão', icon:'⚒️', tagline:'Resistente e Leal',
+    desc:'Forjado nas profundezas, duro como pedra e leal como o ferro que trabalha. Quase impossível de derrubar.',
+    lore:'Os anões vivem em fortalezas nas montanhas e sob a terra. Sua resistência é lendária — guardam rancores por gerações e honram alianças com o mesmo afinco.',
+    attrs:[{name:'Constituição',v:95},{name:'Força',v:80},{name:'Sabedoria',v:70},{name:'Destreza',v:40},{name:'Inteligência',v:55},{name:'Carisma',v:45}],
+    bonus:'CON +2',
+    traits:['CON +2','Visão no Escuro 18m','Resistência a Veneno','Treinamento em Armas Anãs','Prof. Ferramentas'],
+    names:['Barendd','Brottor','Dolgrin','Eberk','Fargrim','Gardain','Harbek','Kildrak','Morgran','Orsik'],
+  },
+  {
+    id:'halfling', name:'Halfling', icon:'🍀', tagline:'Sortudo e Ágil',
+    desc:'Pequeno, discreto e surpreendentemente sortudo. Quando um dado mostra 1, o halfling relança — o destino nunca pode condená-los.',
+    lore:'Os halflings vivem em confortáveis casas na encosta de colinas. Valorizam paz, boa comida e amigos. Mas quando chamados à aventura, surpreendem a todos.',
+    attrs:[{name:'Destreza',v:90},{name:'Carisma',v:70},{name:'Sorte',v:100},{name:'Força',v:25},{name:'Constituição',v:55},{name:'Inteligência',v:50}],
+    bonus:'DES +2',
+    traits:['Sortudo (relança 1s)','Bravo (vantagem vs medo)','Ágil (passa por criaturas maiores)','DES +2'],
+    names:['Alton','Ander','Cade','Corrin','Eldon','Garret','Lyle','Milo','Osborn','Tobold'],
+  },
+  {
+    id:'gnomo', name:'Gnomo', icon:'🔮', tagline:'Curioso e Imune à Magia Mental',
+    desc:'Curioso, inventivo e impossível de dobrar mentalmente. Vantagem em todos os testes de resistência mental contra magia.',
+    lore:'Os gnomos são movidos pela curiosidade insaciável. Constroem engenhocas, estudam feitiços e nunca param de fazer perguntas. Sua mente é literalmente inviolável.',
+    attrs:[{name:'Inteligência',v:90},{name:'Magia',v:85},{name:'Resistência Mental',v:100},{name:'Força',v:20},{name:'Constituição',v:55},{name:'Destreza',v:60}],
+    bonus:'INT +2',
+    traits:['Esperteza Gnômica','INT +2','Visão no Escuro','Resistência Mental Total'],
+    names:['Alston','Alvyn','Boddynock','Brocc','Ellywick','Erky','Fonkin','Frug','Gerbo','Gimble'],
+  },
+  {
+    id:'meio-elfo', name:'Meio-Elfo', icon:'🌟', tagline:'Carismático e Versátil',
+    desc:'Herdou o carisma élfico e a versatilidade humana. Ganha CAR+2 e duas perícias completamente livres — o negociador nato do grupo.',
+    lore:'Vivendo entre dois mundos, os meio-elfos desenvolveram uma empatia única. São naturalmente carismáticos e entendem tanto humanos quanto elfos melhor que qualquer um.',
+    attrs:[{name:'Carisma',v:95},{name:'Versatilidade',v:90},{name:'Destreza',v:70},{name:'Força',v:50},{name:'Constituição',v:55},{name:'Inteligência',v:65}],
+    bonus:'CAR +2, dois atributos +1',
+    traits:['CAR +2','Duas perícias livres','Visão no Escuro','Imunidade a sono','Vantagem vs encanto'],
+    names:['Adran','Aelar','Aramil','Arannis','Aust','Beiro','Berrian','Carric','Enialis','Erdan'],
+  },
+  {
+    id:'meio-orc', name:'Meio-Orc', icon:'💪', tagline:'Imparável em Combate',
+    desc:'Força bruta com instinto de sobrevivência afiado. Quando chega a 0 PV, fica em 1 — morre quando o inimigo quiser, mas nunca na primeira vez.',
+    lore:'Os meio-orcs carregam a herança de duas culturas. Muitas vezes incompreendidos, provam seu valor através de atos corajosos e uma resiliência sobre-humana.',
+    attrs:[{name:'Força',v:95},{name:'Constituição',v:85},{name:'Intimidação',v:90},{name:'Destreza',v:55},{name:'Inteligência',v:40},{name:'Carisma',v:35}],
+    bonus:'FOR +2, CON +1',
+    traits:['Inabalável (fica em 1 PV)','Crítico devastador','Visão no Escuro','Prof. Intimidação'],
+    names:['Dench','Feng','Gell','Henk','Holg','Imsh','Keth','Krusk','Mhurren','Ront'],
+  },
+  {
+    id:'orc', name:'Orc', icon:'🪓', tagline:'Força Bruta Suprema',
+    desc:'Guerreiro nato com força que intimida os mais corajosos. Movimento bônus como ação para se lançar ao combate.',
+    lore:'Os orcs valorizam força acima de tudo. Tribos belicosas que vivem pela lâmina, mas muitos orcs encontram honra em servir como guardiões poderosos.',
+    attrs:[{name:'Força',v:100},{name:'Constituição',v:85},{name:'Velocidade',v:80},{name:'Destreza',v:50},{name:'Inteligência',v:30},{name:'Carisma',v:35}],
+    bonus:'FOR +2, CON +1',
+    traits:['FOR +2','Visão no Escuro','Agressivo (movimento bônus)','Intimidação','Implacável'],
+    names:['Gell','Henk','Holg','Imsh','Keth','Krusk','Mhurren','Ront','Shump','Thokk'],
+  },
+  {
+    id:'tiefling', name:'Tiefling', icon:'😈', tagline:'Herança Infernal',
+    desc:'Carrega uma herança infernal que não escolheu e aprendeu a usá-la como arma. Resistência a fogo e magias inatas crescentes.',
+    lore:'Descendentes de pactos demoníacos ancestrais, os tieflings carregam o peso de uma herança que não pediram. Vistos com desconfiança, tornaram-se resilientes.',
+    attrs:[{name:'Carisma',v:85},{name:'Inteligência',v:80},{name:'Magia Inata',v:90},{name:'Força',v:45},{name:'Constituição',v:60},{name:'Destreza',v:65}],
+    bonus:'INT +1, CAR +2',
+    traits:['Resistência a Fogo','INT +1 CAR +2','Taumaturgia (truque)','Chamas Infernais (nv.3)','Escuridão (nv.5)'],
+    names:['Akmenos','Amnon','Barakas','Damakos','Ekemon','Iados','Kairon','Leucis','Melech','Mordai'],
+  },
+  {
+    id:'draconato', name:'Draconato', icon:'🐉', tagline:'Herança Dracônica',
+    desc:'Orgulhoso herdeiro do sangue dracônico. Sopro elemental devastador e resistência ao elemento escolhido.',
+    lore:'Os draconatos são criaturas de honra e orgulho. Descendem de dragões e carregam isso literalmente — escamas, sopro elemental e uma presença imponente.',
+    attrs:[{name:'Força',v:85},{name:'Carisma',v:80},{name:'Sopro',v:100},{name:'Destreza',v:50},{name:'Constituição',v:75},{name:'Inteligência',v:55}],
+    bonus:'FOR +2, CAR +1',
+    traits:['Sopro Elemental','Resistência Elemental','FOR +2 CAR +1','Escamas Dracônicas'],
+    names:['Arjhan','Balasar','Bharash','Donaar','Ghesh','Heskan','Kriv','Medrash','Mehen','Nadarr'],
+  },
+  // ── SUPLEMENTOS (Volo's, Mordenkainen's, etc.) ──────────────
+  {
+    id:'tabaxi', name:'Tabaxi', icon:'🐱', tagline:'Felino Curioso',
+    desc:'Felinos humanóides com curiosidade insaciável. Velocidade de escalar incrível e visão noturna superior. A raça mais ágil do jogo.',
+    lore:'Os Tabaxi são caçadores e coletores de histórias. Viajam o mundo em busca de relíquias, segredos e lendas. Uma vez que querem algo, são imparáveis — e incrivelmente rápidos.',
+    attrs:[{name:'Destreza',v:100},{name:'Velocidade',v:95},{name:'Percepção',v:90},{name:'Furtividade',v:88},{name:'Força',v:55},{name:'Constituição',v:55}],
+    bonus:'DES +2, CAR +1',
+    traits:['Garras (1d4)','Escalar (vel. completa)','Visão no Escuro','Passo Felino (vel. dobrada/turno)','DES +2 CAR +1'],
+    names:['Rastro da Lua','Cinza Pálida','Faísca Errante','Dente de Pedra','Canção do Anoitecer','Olhar Distante'],
+  },
+  {
+    id:'kenku', name:'Kenku', icon:'🐦', tagline:'Imitador das Sombras',
+    desc:'Corvídeos humanóides que falam apenas através de imitações perfeitas de vozes e sons. Mestres em disfarce e furtividade.',
+    lore:'Os Kenku perderam a capacidade de voar e de ter voz própria como punição divina. Comunicam-se com sons e vozes que já ouviram — uma habilidade estranha e perturbadora.',
+    attrs:[{name:'Destreza',v:90},{name:'Furtividade',v:95},{name:'Percepção',v:80},{name:'Força',v:40},{name:'Constituição',v:50},{name:'Carisma',v:55}],
+    bonus:'DES +2, SAB +1',
+    traits:['Imitação Perfeita','Memória Fotográfica','DES +2 SAB +1','Especialista em Falsificação','Dois idiomas'],
+    names:['Rangido de Porta','Voz do Ferreiro','Sino da Torre','Choro de Criança','Trovão Distante','Riso da Taverna'],
+  },
+  {
+    id:'firbolg', name:'Firbolg', icon:'🌲', tagline:'Guardião Gentil',
+    desc:'Gigantes da floresta solitários e contemplativos. Magia natural inata e capacidade de se tornar invisível. Os mais sábios de todos.',
+    lore:'Os Firbolg vivem em florestas antigas longe de outras raças. São pastores gentis da natureza, raramente beligerantes — mas terríveis quando provocados, com a força de um gigante.',
+    attrs:[{name:'Sabedoria',v:95},{name:'Constituição',v:85},{name:'Força',v:90},{name:'Magia',v:80},{name:'Destreza',v:40},{name:'Carisma',v:50}],
+    bonus:'SAB +2, FOR +1',
+    traits:['Magia Firbolg (invisível/disfarce)','Detecção Mágica','Falar com Animais e Plantas','SAB +2 FOR +1','Passos Silenciosos'],
+    names:['Bráduinn','Caelynn','Dúnlaith','Ériu','Fáidhlim','Garbhán','Laoise','Meadhbh','Niamh','Sorcha'],
+  },
+  {
+    id:'goliath', name:'Goliath', icon:'⛰️', tagline:'Titã das Montanhas',
+    desc:'Gigantes das montanhas com força incomparável. Podem reduzir dano uma vez por descanso curto. Competitivos por natureza.',
+    lore:'Os Goliath vivem nas montanhas mais altas, onde cada dia é uma luta pela sobrevivência. Seus clãs medem tudo em desempenho — fraqueza não tem lugar entre eles.',
+    attrs:[{name:'Força',v:100},{name:'Constituição',v:95},{name:'Atletismo',v:100},{name:'Destreza',v:50},{name:'Inteligência',v:40},{name:'Carisma',v:45}],
+    bonus:'FOR +2, CON +1',
+    traits:['Corpão (reduz dano)','Resistência Pedregosa','FOR +2 CON +1','Atletismo Natural','Adaptação Montanhosa'],
+    names:['Aukan','Eglath','Gae-Al','Gauthak','Ilimkina','Keothi','Kuori','Lo-Kag','Manneo','Maveith'],
+  },
+  {
+    id:'aasimar', name:'Aasimar', icon:'✨', tagline:'Toque Celestial',
+    desc:'Descendentes de seres celestiais com um toque divino. Curam aliados com presença radiante e têm resistência a dano necrótico e radiante.',
+    lore:'Os Aasimar carregam uma fagulha do poder celestial. Muitos são destinados a grandeza — ou a uma queda trágica. Seu brilho interno pode inspirar ou revelar segredos.',
+    attrs:[{name:'Carisma',v:90},{name:'Sabedoria',v:85},{name:'Cura',v:95},{name:'Força',v:60},{name:'Constituição',v:65},{name:'Destreza',v:55}],
+    bonus:'CAR +2, SAB +1',
+    traits:['Mãos Curas (PV = nível)','Luz Divina (radiante bônus)','Resistência Radiante/Necrótica','Visão no Escuro','CAR +2'],
+    names:['Adrie','Anselan','Ariel','Celestia','Dara','Draven','Lia','Miral','Serafina','Zafiel'],
+  },
+  {
+    id:'yuan-ti', name:'Yuan-Ti Pureblood', icon:'🐍', tagline:'Sangue da Serpente',
+    desc:'Humanóides com herança serpentina. Imunes a veneno e magia de encantamento. Feitiços inatos e resistência à magia.',
+    lore:'Os Yuan-Ti Pureblood são os mais humanos dos Yuan-Ti, criados para se infiltrar nas sociedades humanas. Por fora parecem humanos com traços sutis de serpente. Por dentro, são frios e calculistas.',
+    attrs:[{name:'Inteligência',v:85},{name:'Carisma',v:90},{name:'Resistência',v:100},{name:'Força',v:50},{name:'Constituição',v:60},{name:'Destreza',v:70}],
+    bonus:'INT +1, CAR +2',
+    traits:['Imune a Veneno','Imune a Encantamento','Resistência à Magia','Feitiços Inatos de Serpente','Visão no Escuro'],
+    names:['Asmodai','Essek','Izveth','Kazit','Mezzim','Ozryn','Sirreth','Ssethe','Uthrekt','Varreth'],
+  },
+  {
+    id:'githyanki', name:'Githyanki', icon:'⚔️', tagline:'Guerreiro Astral',
+    desc:'Guerreiros do Plano Astral com telepatia e psionics. Proficientes com armadura média e espadas longas desde o nascimento.',
+    lore:'Os Githyanki foram escravizados pelos Illithids (Mind Flayers) por milênios. Libertados, tornaram-se guerreiros implacáveis que navegam o Plano Astral em naves dracônicas.',
+    attrs:[{name:'Força',v:90},{name:'Inteligência',v:85},{name:'Psionics',v:80},{name:'Destreza',v:70},{name:'Constituição',v:75},{name:'Carisma',v:45}],
+    bonus:'FOR +2, INT +1',
+    traits:['Telepatia Psíquica','Salto Psiônico','Armadura Média','Espada Longa','Resistência Psíquica'],
+    names:['Aarith','Bharas','Charak','Damnath','Eltuaera','Ghaal','Hrath','Korrth','Lykrath','Menyar'],
+  },
+  {
+    id:'tortle', name:'Tortle', icon:'🐢', tagline:'Casca Natural',
+    desc:'Humanóides tartaruga com armadura natural extraordinária. CA 17 sem equipamento nenhum. Lento mas praticamente intocável.',
+    lore:'Os Tortles vivem nas costas tropicais com uma filosofia zen. Não se apressam — a tartaruga sabe que chegará. Sua casca é a melhor armadura natural de qualquer raça.',
+    attrs:[{name:'Constituição',v:90},{name:'Defesa',v:100},{name:'Força',v:85},{name:'Sabedoria',v:70},{name:'Destreza',v:30},{name:'Carisma',v:50}],
+    bonus:'FOR +2, SAB +1',
+    traits:['Casca Natural (CA 17)','Recolher na Casca','Segurar Fôlego (1h)','Garras (1d4)','Sobrevivência Natural'],
+    names:['Aranck','Arre-Catte','Bero','Chaiy','Doya','Equa','Hawit','Kund','Losi','Makha'],
+  },
+];
+
+const CLASSES = [
+  {
+    id:'barbaro', name:'Bárbaro', icon:'🪓', tagline:'Fúria Selvagem',
+    desc:'Força bruta canalizada em fúria pura. Quanto mais ferido, mais perigoso. Resistência a dano físico durante a Fúria.',
+    lore:'Bárbaros canalizaram a violência da vida selvagem em uma fúria de combate. A cada ferida, ficam mais letais — uma força da natureza com machado.',
+    attrs:[{name:'Força',v:100},{name:'Constituição',v:90},{name:'Sobrevivência',v:80},{name:'Fúria',v:100},{name:'Inteligência',v:25},{name:'Carisma',v:30}],
+    key:'FOR / CON',
+    traits:['Fúria (resistência física)','Defesa sem Armadura','Ataque Imprudente','Movimento Extra','Ataques Extra'],
+    dado:'d12 (maior PV do jogo)',
+  },
+  {
+    id:'bardo', name:'Bardo', icon:'🎵', tagline:'Arte como Magia',
+    desc:'Músico, contador de histórias e espião — o bardo usa a arte como magia. Inspira aliados e conhece um pouco de tudo.',
+    lore:'Os bardos acreditam que a magia flui na música e nas histórias. Com palavras certas podem inspirar heróis, confundir inimigos e até mudar o destino.',
+    attrs:[{name:'Carisma',v:100},{name:'Destreza',v:75},{name:'Versatilidade',v:90},{name:'Força',v:40},{name:'Constituição',v:55},{name:'Sabedoria',v:65}],
+    key:'CAR',
+    traits:['Inspiração Bárdica','Conhecimento Universal','Palavras de Encorajamento','Expertise','Contramagia'],
+    dado:'d8',
+  },
+  {
+    id:'clerigo', name:'Clérigo', icon:'⛪', tagline:'Canal do Divino',
+    desc:'Canal entre mortais e o divino. Cura aliados, pune inimigos com fé inabalável e acessa poderes únicos por domínio.',
+    lore:'Os clérigos são guerreiros de seu deus, não apenas sacerdotes. Canalam poder divino que pode curar os moribundos ou destruir os mortos-vivos.',
+    attrs:[{name:'Sabedoria',v:95},{name:'Constituição',v:70},{name:'Cura',v:100},{name:'Força',v:65},{name:'Inteligência',v:60},{name:'Carisma',v:70}],
+    key:'SAB',
+    traits:['Canalizar Divindade','Domínio Divino','Fustigar Mortos-Vivos','Milagre (nv.9)','Intervenção Divina'],
+    dado:'d8',
+  },
+  {
+    id:'druida', name:'Druida', icon:'🌿', tagline:'Guardião Natural',
+    desc:'Protege a natureza com magia elemental poderosa e pode se transformar em animais. Ligo à terra de maneiras que poucos compreendem.',
+    lore:'Os druidas são guardiões do equilíbrio natural. Transformam-se em animais, convocam tempestades e falam com plantas. A natureza os obedece.',
+    attrs:[{name:'Sabedoria',v:90},{name:'Constituição',v:65},{name:'Natureza',v:100},{name:'Força',v:50},{name:'Inteligência',v:70},{name:'Carisma',v:55}],
+    key:'SAB',
+    traits:['Forma Selvagem (animal)','Magia Natural','Falar com Animais','Passagem pela Floresta'],
+    dado:'d8',
+  },
+  {
+    id:'guerreiro', name:'Guerreiro', icon:'⚔️', tagline:'Mestre do Combate',
+    desc:'Domina qualquer arma e armadura. Surto de Ação permite agir duas vezes em um turno. O combatente mais versátil.',
+    lore:'Os guerreiros estudam o combate como uma arte. Do espadachim elegante ao cavaleiro blindado, todos dominam o campo de batalha com precisão brutal.',
+    attrs:[{name:'Força',v:90},{name:'Constituição',v:85},{name:'Destreza',v:80},{name:'Combate',v:100},{name:'Inteligência',v:50},{name:'Carisma',v:45}],
+    key:'FOR ou DES',
+    traits:['Segundo Fôlego','Surto de Ação','Estilo de Combate','Ataques Extra','Manobras (Mestre de Batalha)'],
+    dado:'d10',
+  },
+  {
+    id:'ladino', name:'Ladino', icon:'🗡️', tagline:'Sombra e Precisão',
+    desc:'Especialista em furtividade e golpes precisos. O Ataque Furtivo multiplica o dano quando tem vantagem ou aliado adjacente.',
+    lore:'Os ladinos preferem a sombra ao campo aberto. Estudam fraquezas, esperam o momento certo e então — um golpe certeiro que decide tudo.',
+    attrs:[{name:'Destreza',v:100},{name:'Furtividade',v:95},{name:'Percepção',v:85},{name:'Força',v:40},{name:'Constituição',v:55},{name:'Carisma',v:65}],
+    key:'DES',
+    traits:['Ataque Furtivo','Ação Ardilosa','Reflexos Incríveis','Expertise','Evasão'],
+    dado:'d8',
+  },
+  {
+    id:'mago', name:'Mago', icon:'✨', tagline:'Poder Arcano',
+    desc:'Maior lista de magias do jogo. Copia feitiços em seu grimório. Recuperação Arcana restaura espaços em descanso curto.',
+    lore:'Os magos estudam anos para dominar a magia arcana. Cada magia é uma equação de poder inscrita na memória. Com o tempo, tornam-se os seres mais perigosos do mundo.',
+    attrs:[{name:'Inteligência',v:100},{name:'Magia',v:100},{name:'Conhecimento',v:90},{name:'Força',v:20},{name:'Constituição',v:45},{name:'Destreza',v:50}],
+    key:'INT',
+    traits:['Grimório Arcano','Recuperação Arcana','Tradição Arcana','Maestria em Magia','Assinatura Mágica'],
+    dado:'d6 (menor PV)',
+  },
+  {
+    id:'monge', name:'Monge', icon:'🥋', tagline:'Corpo como Arma',
+    desc:'O corpo é a arma suprema do monge. Pontos de Chi permitem habilidades extraordinárias. CA sem armadura baseada em SAB.',
+    lore:'Monges passam décadas em mosteiros treinando mente e corpo. Podem correr pelas paredes, interromper magias com as mãos e mover-se mais rápido que uma flecha.',
+    attrs:[{name:'Destreza',v:90},{name:'Sabedoria',v:85},{name:'Velocidade',v:100},{name:'Força',v:70},{name:'Constituição',v:65},{name:'Inteligência',v:55}],
+    key:'DES / SAB',
+    traits:['Chi','Artes Marciais','Deflexão de Mísseis','Movimento Acelerado','Queda Lenta'],
+    dado:'d8',
+  },
+  {
+    id:'paladino', name:'Paladino', icon:'🛡️', tagline:'Guerreiro Sagrado',
+    desc:'Smite Divino canaliza espaços de magia em dano devastador. Aura de Proteção salva aliados próximos. Movido por um juramento sagrado.',
+    lore:'O paladino não é apenas um guerreiro — é um campeão de um juramento sagrado. Cada golpe pode ser carregado de poder divino devastador.',
+    attrs:[{name:'Força',v:90},{name:'Carisma',v:85},{name:'Constituição',v:80},{name:'Sagrado',v:100},{name:'Destreza',v:55},{name:'Sabedoria',v:65}],
+    key:'FOR / CAR',
+    traits:['Smite Divino','Imposição de Mãos','Aura de Proteção','Juramento Sagrado','Cura Divina'],
+    dado:'d10',
+  },
+  {
+    id:'patrulheiro', name:'Patrulheiro', icon:'🏹', tagline:'Caçador da Natureza',
+    desc:'Mestre em terreno selvagem com inimigo favorito. Companheiro animal fiel e magias naturais. O explorador supremo.',
+    lore:'Os patrulheiros vagam pelos limites da civilização, protegendo-a das ameaças selvagens. Conhecem cada trilha, cada pegada e cada fraqueza de seus inimigos.',
+    attrs:[{name:'Destreza',v:90},{name:'Sabedoria',v:80},{name:'Sobrevivência',v:100},{name:'Força',v:65},{name:'Constituição',v:70},{name:'Inteligência',v:60}],
+    key:'DES / SAB',
+    traits:['Inimigo Favorito','Terreno Favorito','Companheiro Animal','Emboscada Selvagem','Passagem Rápida'],
+    dado:'d10',
+  },
+  {
+    id:'feiticeiro', name:'Feiticeiro', icon:'🔥', tagline:'Magia no Sangue',
+    desc:'A magia flui no sangue, não nos livros. Metamagia molda como os feitiços funcionam. Origem Mágica define a fonte do poder.',
+    lore:'Feiticeiros não estudam magia — eles são magia. O poder irrompe do interior, muitas vezes de forma incontrolável. Com treinamento, tornam-se forças da natureza.',
+    attrs:[{name:'Carisma',v:90},{name:'Magia Inata',v:100},{name:'Versatilidade',v:85},{name:'Força',v:30},{name:'Constituição',v:55},{name:'Destreza',v:60}],
+    key:'CAR',
+    traits:['Pontos de Feitiçaria','Metamagia','Origem Mágica','Feitiço Empoderado','Recuperação Arcana'],
+    dado:'d6',
+  },
+  {
+    id:'bruxo', name:'Bruxo', icon:'👁️', tagline:'Pacto das Trevas',
+    desc:'Poder cedido por um ser de outro plano mediante pacto. Poucos feitiços mas que sempre se recuperam em descanso curto.',
+    lore:'O bruxo fez um pacto com uma entidade poderosa — um demônio, um ancião além da compreensão, um rei feérico. Esse poder tem um preço que o bruxo paga a cada feitiço.',
+    attrs:[{name:'Carisma',v:85},{name:'Inteligência',v:80},{name:'Magia do Pacto',v:100},{name:'Força',v:35},{name:'Constituição',v:55},{name:'Destreza',v:60}],
+    key:'CAR',
+    traits:['Pacto Arcano','Invocações Místicas','Pact Boon','Recuperação Arcana (curto)','Magia Mística'],
+    dado:'d8',
+  },
+];
+
+const BACKGROUNDS = [
+  { id:'acólito', name:'Acólito', icon:'⛪', bonus:'Religião + Intuição', desc:'Você passou anos em um templo, servindo a um deus. Conhece rituais, línguas sagradas e outros membros do clero.', traits:['Religião','Intuição','Abrigo no Templo'] },
+  { id:'criminoso', name:'Criminoso', icon:'🃏', bonus:'Enganação + Furtividade', desc:'Você tem experiência no lado errado da lei. Conhece os submundos das cidades e como se mover sem ser visto.', traits:['Enganação','Furtividade','Contatos Criminosos'] },
+  { id:'herói-do-povo', name:'Herói do Povo', icon:'🌾', bonus:'Trato com Animais + Sobrevivência', desc:'Você vem do povo comum mas se destacou por um ato heroico. As pessoas te conhecem e confiam em você.', traits:['Trato com Animais','Sobrevivência','Hospitalidade Rústica'] },
+  { id:'nobre', name:'Nobre', icon:'👑', bonus:'História + Persuasão', desc:'De família aristocrática, você entende política, etiqueta e os jogos de poder que movem reinos.', traits:['História','Persuasão','Privilégio de Posição'] },
+  { id:'sábio', name:'Sábio', icon:'📚', bonus:'Arcanismo + História', desc:'Anos em bibliotecas e universidades te tornaram um repositório de conhecimento. A informação é sua arma.', traits:['Arcanismo','História','Pesquisador'] },
+  { id:'soldado', name:'Soldado', icon:'⚔️', bonus:'Atletismo + Intimidação', desc:'Você serviu em um exército. Disciplina, táticas e o instinto de sobrevivência em combate são sua natureza.', traits:['Atletismo','Intimidação','Patente Militar'] },
+  { id:'forasteiro', name:'Forasteiro', icon:'🌲', bonus:'Atletismo + Sobrevivência', desc:'Você cresceu longe da civilização. A natureza é seu lar e você sobrevive onde outros morreriam.', traits:['Atletismo','Sobrevivência','Vagar'] },
+  { id:'entertainer', name:'Artista', icon:'🎭', bonus:'Acrobacia + Performance', desc:'Palcos, arenas ou tavernas — onde há plateias, há espaço para você. Sua arte abre portas.', traits:['Acrobacia','Performance','Residência Popular'] },
+];
+
+const ALIGNMENTS = [
+  { id:'lg', name:'Leal Bom', desc:'Faz o bem dentro das regras.' },
+  { id:'ng', name:'Neutro Bom', desc:'Faz o bem sem se prender a regras.' },
+  { id:'cg', name:'Caótico Bom', desc:'Age com bondade e liberdade total.' },
+  { id:'ln', name:'Leal Neutro', desc:'Segue a lei acima de tudo.' },
+  { id:'n', name:'Neutro', desc:'Equilíbrio entre lei e caos.' },
+  { id:'cn', name:'Caótico Neutro', desc:'Liberdade pessoal acima de tudo.' },
+  { id:'le', name:'Leal Mau', desc:'Usa a lei para seus fins.' },
+  { id:'ne', name:'Neutro Mau', desc:'Faz o mal sem remorso ou código.' },
+  { id:'ce', name:'Caótico Mau', desc:'Destruição e caos por prazer.' },
+];
+
+// ═══════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════
+const char = { race:null, class:null, background:null, alignment:null, name:'' };
+let currentStep = 0;
+const TOTAL_STEPS = 6;
+
+// ═══════════════════════════════════════════════════════════════
+// PARTICLES
+// ═══════════════════════════════════════════════════════════════
+function initParticles() {
+  const container = document.getElementById('particles');
+  const colors = ['#9B6DFF','#BFA0FF','#C8952A','#E8C060','#5A2E8A'];
+  for (let i = 0; i < 25; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = Math.random() * 4 + 1;
+    p.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${Math.random()*100}%;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      animation-duration:${Math.random()*15+8}s;
+      animation-delay:${Math.random()*10}s;
+    `;
+    container.appendChild(p);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RENDER FUNCTIONS
+// ═══════════════════════════════════════════════════════════════
+function renderRaces() {
+  const grid = document.getElementById('race-grid');
+  grid.innerHTML = RACES.map(r => `
+    <div class="choice-card" id="race-${r.id}" onclick="selectRace('${r.id}')">
+      <span class="choice-icon">${r.icon}</span>
+      <div class="choice-name">${r.name}</div>
+      <div class="choice-tagline">${r.tagline}</div>
+      <div class="choice-desc">${r.desc.slice(0,80)}...</div>
+    </div>
+  `).join('');
+}
+
+function selectRace(id) {
+  char.race = id;
+  document.querySelectorAll('#race-grid .choice-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('race-'+id).classList.add('selected');
+  document.getElementById('btn-race-next').disabled = false;
+  showRaceDetail(id);
+}
+
+function showRaceDetail(id) {
+  const r = RACES.find(x=>x.id===id);
+  document.getElementById('rd-name').textContent = r.name;
+  document.getElementById('rd-subtitle').textContent = r.bonus + ' · ' + r.tagline;
+  document.getElementById('rd-body').innerHTML = `<strong>${r.lore}</strong>`;
+
+  // Attrs
+  const attrsEl = document.getElementById('rd-attrs');
+  attrsEl.innerHTML = r.attrs.map(a => `
+    <div class="attr-row">
+      <div class="attr-label">${a.name}<span>${a.v}%</span></div>
+      <div class="attr-bar"><div class="attr-fill" style="width:${a.v}%"></div></div>
+    </div>
+  `).join('');
+
+  // Traits
+  document.getElementById('rd-traits').innerHTML = r.traits.map(t =>
+    `<span class="trait-pill">${t}</span>`
+  ).join('');
+
+  const panel = document.getElementById('race-detail');
+  panel.style.display = 'block';
+  panel.classList.add('show');
+  setTimeout(() => panel.scrollIntoView({behavior:'smooth',block:'nearest'}), 100);
+}
+
+function renderClasses() {
+  const grid = document.getElementById('class-grid');
+  grid.innerHTML = CLASSES.map(c => `
+    <div class="choice-card" id="class-${c.id}" onclick="selectClass('${c.id}')">
+      <span class="choice-icon">${c.icon}</span>
+      <div class="choice-name">${c.name}</div>
+      <div class="choice-tagline">${c.key}</div>
+      <div class="choice-desc">${c.desc.slice(0,75)}...</div>
+    </div>
+  `).join('');
+}
+
+function selectClass(id) {
+  char.class = id;
+  document.querySelectorAll('#class-grid .choice-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('class-'+id).classList.add('selected');
+  document.getElementById('btn-class-next').disabled = false;
+  showClassDetail(id);
+}
+
+function showClassDetail(id) {
+  const c = CLASSES.find(x=>x.id===id);
+  document.getElementById('cd-name').textContent = c.name;
+  document.getElementById('cd-subtitle').textContent = 'Dado de Vida: '+c.dado+' · Atributo: '+c.key;
+  document.getElementById('cd-body').innerHTML = `<strong>${c.lore}</strong>`;
+
+  const attrsEl = document.getElementById('cd-attrs');
+  attrsEl.innerHTML = c.attrs.map(a => `
+    <div class="attr-row">
+      <div class="attr-label">${a.name}<span>${a.v}%</span></div>
+      <div class="attr-bar"><div class="attr-fill" style="width:${a.v}%;background:linear-gradient(90deg,#C8952A,#9B6DFF)"></div></div>
+    </div>
+  `).join('');
+
+  document.getElementById('cd-traits').innerHTML = c.traits.map(t =>
+    `<span class="trait-pill gold">${t}</span>`
+  ).join('');
+
+  const panel = document.getElementById('class-detail');
+  panel.style.display = 'block';
+  panel.classList.add('show');
+  setTimeout(() => panel.scrollIntoView({behavior:'smooth',block:'nearest'}), 100);
+}
+
+function renderBackgrounds() {
+  const grid = document.getElementById('bg-grid');
+  grid.innerHTML = BACKGROUNDS.map(b => `
+    <div class="bg-card" id="bg-${b.id}" onclick="selectBg('${b.id}')">
+      <div class="bg-name">${b.icon} ${b.name}</div>
+      <div class="bg-bonus">${b.bonus}</div>
+    </div>
+  `).join('');
+}
+
+function selectBg(id) {
+  char.background = id;
+  document.querySelectorAll('#bg-grid .bg-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('bg-'+id).classList.add('selected');
+  document.getElementById('btn-bg-next').disabled = false;
+  showBgDetail(id);
+}
+
+function showBgDetail(id) {
+  const b = BACKGROUNDS.find(x=>x.id===id);
+  document.getElementById('bgd-name').textContent = b.name;
+  document.getElementById('bgd-subtitle').textContent = 'Perícias: '+b.bonus;
+  document.getElementById('bgd-body').textContent = b.desc;
+  document.getElementById('bgd-traits').innerHTML = b.traits.map(t =>
+    `<span class="trait-pill">${t}</span>`
+  ).join('');
+  const panel = document.getElementById('bg-detail');
+  panel.style.display = 'block';
+  setTimeout(() => panel.scrollIntoView({behavior:'smooth',block:'nearest'}), 100);
+}
+
+function renderAlignments() {
+  const grid = document.getElementById('alignment-grid');
+  grid.innerHTML = ALIGNMENTS.map(a => `
+    <div class="alignment-card" id="align-${a.id}" onclick="selectAlignment('${a.id}')">
+      <div class="alignment-name">${a.name}</div>
+      <div class="alignment-desc">${a.desc}</div>
+    </div>
+  `).join('');
+}
+
+function selectAlignment(id) {
+  char.alignment = id;
+  document.querySelectorAll('#alignment-grid .alignment-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('align-'+id).classList.add('selected');
+  document.getElementById('btn-align-next').disabled = false;
+}
+
+function renderNameSuggestions() {
+  const race = RACES.find(r => r.id === char.race);
+  const container = document.getElementById('name-suggestions');
+  if (race && race.names) {
+    container.innerHTML = race.names.slice(0,8).map(n =>
+      `<span class="trait-pill" style="cursor:pointer" onclick="useName('${n}')">${n}</span>`
+    ).join('');
+  }
+}
+
+function useName(n) {
+  document.getElementById('charName').value = n;
+  char.name = n;
+  document.getElementById('btn-name-next').disabled = false;
+}
+
+function onNameInput() {
+  const v = document.getElementById('charName').value.trim();
+  char.name = v;
+  document.getElementById('btn-name-next').disabled = v.length < 2;
+}
+
+function renderSheet() {
+  const race  = RACES.find(r=>r.id===char.race);
+  const cls   = CLASSES.find(c=>c.id===char.class);
+  const bg    = BACKGROUNDS.find(b=>b.id===char.background);
+  const align = ALIGNMENTS.find(a=>a.id===char.alignment);
+
+  document.getElementById('sheet-name').textContent = char.name;
+  document.getElementById('sheet-identity').textContent =
+    `${race.name} ${cls.name} · ${align.name}`;
+
+  document.getElementById('sheet-blocks').innerHTML = `
+    <div class="sheet-block">
+      <div class="sheet-block-label">Raça</div>
+      <div class="sheet-block-value">${race.icon} ${race.name}</div>
+      <div class="sheet-block-sub">${race.bonus}</div>
+    </div>
+    <div class="sheet-block">
+      <div class="sheet-block-label">Classe</div>
+      <div class="sheet-block-value">${cls.icon} ${cls.name}</div>
+      <div class="sheet-block-sub">Dado ${cls.dado}</div>
+    </div>
+    <div class="sheet-block">
+      <div class="sheet-block-label">Histórico</div>
+      <div class="sheet-block-value">${bg.icon} ${bg.name}</div>
+      <div class="sheet-block-sub">${bg.bonus}</div>
+    </div>
+    <div class="sheet-block">
+      <div class="sheet-block-label">Alinhamento</div>
+      <div class="sheet-block-value">${align.name}</div>
+      <div class="sheet-block-sub">${align.desc}</div>
+    </div>
+    <div class="sheet-block">
+      <div class="sheet-block-label">Atributo Principal</div>
+      <div class="sheet-block-value">${cls.key}</div>
+      <div class="sheet-block-sub">Foco de desenvolvimento</div>
+    </div>
+    <div class="sheet-block">
+      <div class="sheet-block-label">Nivel Inicial</div>
+      <div class="sheet-block-value">1°</div>
+      <div class="sheet-block-sub">A aventura começa aqui</div>
+    </div>
+  `;
+
+  document.getElementById('sheet-race-traits').innerHTML = race.traits.map(t =>
+    `<span class="trait-pill">${t}</span>`
+  ).join('');
+  document.getElementById('sheet-class-traits').innerHTML = cls.traits.map(t =>
+    `<span class="trait-pill gold">${t}</span>`
+  ).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════════════
+function updateProgress() {
+  const pct = (currentStep / (TOTAL_STEPS-1)) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+
+  document.querySelectorAll('.step-label').forEach((el,i) => {
+    el.classList.remove('active','done');
+    if (i === currentStep) el.classList.add('active');
+    else if (i < currentStep) el.classList.add('done');
+  });
+  document.querySelectorAll('.step-dot').forEach((el,i) => {
+    el.classList.remove('active','done');
+    if (i === currentStep) el.classList.add('active');
+    else if (i < currentStep) el.classList.add('done');
+  });
+}
+
+function showScreen(n) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-'+n).classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function nextStep() {
+  if (currentStep < TOTAL_STEPS-1) {
+    currentStep++;
+    updateProgress();
+    showScreen(currentStep);
+    if (currentStep === 2) renderBackgrounds();
+    if (currentStep === 3) renderAlignments();
+    if (currentStep === 4) renderNameSuggestions();
+    if (currentStep === 5) renderSheet();
+  }
+}
+
+function prevStep() {
+  if (currentStep > 0) {
+    currentStep--;
+    updateProgress();
+    showScreen(currentStep);
+  }
+}
+
+function restart() {
+  char.race = null; char.class = null;
+  char.background = null; char.alignment = null; char.name = '';
+  currentStep = 0;
+  updateProgress();
+  showScreen(0);
+  renderRaces();
+  renderClasses();
+  document.getElementById('btn-race-next').disabled = true;
+  document.getElementById('btn-class-next').disabled = true;
+  document.getElementById('race-detail').style.display = 'none';
+  document.getElementById('class-detail').style.display = 'none';
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  // Logo
+  const logoB64 = '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';
+  document.getElementById('logoImg').src = 'data:image/png;base64,'+logoB64;
+
+  initParticles();
+  renderRaces();
+  renderClasses();
+  updateProgress();
+});
+</script>
+</body>
+</html>
